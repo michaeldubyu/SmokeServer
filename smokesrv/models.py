@@ -1,4 +1,8 @@
 from django.db import models
+from gcm.models import AbstractDevice
+
+class MyDevice(AbstractDevice):
+    pass
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
@@ -8,4 +12,5 @@ class User(models.Model):
 
     class Meta:
         ordering = ('id', )
+
 
