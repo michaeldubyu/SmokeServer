@@ -12,8 +12,7 @@ class User(models.Model):
     gcm_id = models.IntegerField(unique=True)
 
     def massage(self):
-        self.friends_list = ",".join(set(self.friends_list))
-        self.friends_list = self.friends_list.strip(",")
+        self.friends_list = ",".join(set(self.friends_list.split(",")))
 
     def get_email_friends_list(self):
         friends_ids = self.friends_list.split(",")
