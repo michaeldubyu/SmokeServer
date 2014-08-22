@@ -1,12 +1,17 @@
 from django.shortcuts import render
 from smokesrv.models import User
 from rest_framework import viewsets
-from smokesrv.serializers import ResponseUserSerializer, UserSerializer
+from smokesrv.serializers import ResponseUserSerializer, UserSerializer, FriendsListSerializer
 from django.core import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import api_view
+from gcm.models import get_device_model
+
+@api_view(['POST'])
+def send_smoke(request):
+    pass
 
 @api_view(['POST'])
 def register_or_login(request):
@@ -19,10 +24,39 @@ def register_or_login(request):
         response_serializer = ResponseUserSerializer(user)
         return Response(response_serializer.data)
     except User.DoesNotExist:
-        u = User(email=email, friends_list = '', password=password) 
+        u = User(email=email,password=password) 
         u.save()
         response_serializer = ResponseUserSerializer(u) 
         return Response(response_serializer.data)
+
+@api_view(['POST'])
+def get_friends(request):
+    email = request.DATA['email']
+    try : 
+        user = User.objects.get(email=email)
+        response_serializer = FriendsListSerializer(user)
+        return Response(response_serializer.data)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def add_friend(request):
+    adder = request.DATA['adder']
+    addee = request.DATA['addee']
+    try :
+        adder_user = User.objects.get(email=adder)
+        addee_user = User.objects.get(email=addee)
+        if adder_user and addee_user:
+            adder_user.friends_list += "," + str(addee_user.id)
+            addee_user.friends_list += "," + str(adder_user.id)
+            adder_user.massage()
+            addee_user.massage()
+            adder_user.save()
+            addee_user.save()
+            resp = ResponseUserSerializer(adder_user)
+            return Response(resp.data)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserList(APIView):
     

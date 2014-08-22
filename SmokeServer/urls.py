@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^users/$', views.UserList.as_view()),
     url(r'^login/$', views.register_or_login),
+    url(r'^add_friend/$', views.add_friend),
+    url(r'^get_friends/$', views.get_friends),
     url(r'', include('gcm.urls')),
-
 )
