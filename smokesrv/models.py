@@ -13,6 +13,7 @@ class User(models.Model):
 
     def massage(self):
         self.friends_list = ",".join(set(self.friends_list.split(",")))
+        self.friends_list = self.friends_list.strip(",");
 
     def get_email_friends_list(self):
         friends_ids = self.friends_list.split(",")
