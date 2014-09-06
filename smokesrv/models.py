@@ -9,7 +9,7 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=50, blank=False)
     friends_list = models.CommaSeparatedIntegerField(max_length=512)
-    gcm_id = models.IntegerField(unique=True)
+    gcm_id = models.CharField(unique=True)
 
     def massage(self):
         self.friends_list = ",".join(set(self.friends_list.split(",")))

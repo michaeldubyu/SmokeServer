@@ -13,5 +13,7 @@ urlpatterns = patterns('',
     url(r'^login/$', views.register_or_login),
     url(r'^add_friend/$', views.add_friend),
     url(r'^get_friends/$', views.get_friends),
-    url(r'', include('gcm.urls')),
+    url(r'^update_gcm/$', views.update_gcm),
+    url(r'^smoke_request/$', views.smoke_request),
+    url(r'', include('gcm.urls'))
 )

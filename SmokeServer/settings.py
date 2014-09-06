@@ -36,8 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'gcm'
+    'rest_framework'
 )
 
 
@@ -92,5 +91,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-GCM_APIKEY = 'AIzaSyDw4_ZOpkk-YancFkA3FyqhpVtEmYEhK5E'
-GCM_DEVICE_MODEL = 'smokesrv.models.MyDevice'
+GCM_API_KEY = 'AIzaSyDw4_ZOpkk-YancFkA3FyqhpVtEmYEhK5E'

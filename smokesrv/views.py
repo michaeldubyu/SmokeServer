@@ -8,10 +8,54 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import api_view
 from gcm.models import get_device_model
+from SmokeServer import settings
+import json
+import requests
 
 @api_view(['POST'])
-def send_smoke(request):
-    pass
+def update_gcm(request):
+    email = request.DATA['email']
+    if request.DATA['gcm_id'] :
+        try :
+            user = User.objects.get(email=email)
+            user.gcm_id = request.DATA['gcm_id']
+            user.save()
+            response_serializer = ResponseUserSerializer(user)
+            return Response(response_serializer.data)
+        except User.DoesNotExist:
+           pass
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def smoke_request(request):
+    print request.DATA
+    if 'invited' in request.DATA and 'inviter' in request.DATA:
+        invited = request.DATA['invited']
+        inviter = request.DATA['inviter']
+        message = { "from" : inviter, "action" : "smoke" }
+        resp = send_gcm_message(invited, message)
+        if resp.status_code == 200:
+            return Response({"success":1})
+        else:
+            return Response({"success":0}) 
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+def send_gcm_message(reg_id, message, collapse_key=None):
+    message = json.dumps(message)
+    values = {
+        'registration_ids': [reg_id],
+        'data': {"message":str(message)}
+    }   
+
+    headers = {
+        'UserAgent': "GCM-Server",
+        'Content-Type': 'application/json',
+        'Authorization': 'key=' + settings.GCM_API_KEY,
+    }
+
+    response = requests.post(url="https://android.googleapis.com/gcm/send",data=json.dumps(values), headers=headers)
+
+    return response
 
 @api_view(['POST'])
 def register_or_login(request):
@@ -46,15 +90,14 @@ def add_friend(request):
     try :
         adder_user = User.objects.get(email=adder)
         addee_user = User.objects.get(email=addee)
-        if adder_user and addee_user:
-            adder_user.friends_list += "," + str(addee_user.id)
-            addee_user.friends_list += "," + str(adder_user.id)
-            adder_user.massage()
-            addee_user.massage()
-            adder_user.save()
-            addee_user.save()
-            resp = ResponseUserSerializer(adder_user)
-            return Response(resp.data)
+        adder_user.friends_list += "," + str(addee_user.id)
+        addee_user.friends_list += "," + str(adder_user.id)
+        adder_user.massage()
+        addee_user.massage()
+        adder_user.save()
+        addee_user.save()
+        resp = ResponseUserSerializer(adder_user)
+        return Response(resp.data)
     except User.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
