@@ -28,16 +28,17 @@ def update_gcm(request):
 
 @api_view(['POST'])
 def smoke_request(request):
-    print request.DATA
     if 'invited' in request.DATA and 'inviter' in request.DATA:
         invited = request.DATA['invited']
-        inviter = request.DATA['inviter']
-        message = { "from" : inviter, "action" : "smoke" }
-        resp = send_gcm_message(invited, message)
-        if resp.status_code == 200:
-            return Response({"success":1})
-        else:
-            return Response({"success":0}) 
+        try :
+            invited_user = User.objects.get(email=invited)
+            inviter = request.DATA['inviter']
+            message = { "from" : inviter, "action" : "smoke" }
+            resp = send_gcm_message(invited_user.gcm_id, message)
+            if resp.status_code == 200:
+                return Response(resp.text)
+        except User.DoesNotExist:
+            pass
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 def send_gcm_message(reg_id, message, collapse_key=None):
